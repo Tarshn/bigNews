@@ -38,6 +38,85 @@
     </div>
   </div>
 
+  <!-- 弹出框---模态框 -->
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+              aria-hidden="true">&times;</span></button>
+          <h4 class="modal-title" id="myModalLabel">温馨提示 :</h4>
+        </div>
+        <div class="modal-body">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default btn-success" data-dismiss="modal">确认</button>
+          <!-- <button type="button" class="btn btn-primary">Save changes</button> -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./libs/http.js"></script>
+  <script>
+    // 获取登录按钮,并对其注册点击事件
+    $('.input_sub').on('click', function (e) {
+      // 因为按钮在表单form标签内,而form标签有个默认的跳转属性,所以需要将默认的跳转属性阻止
+      e.preventDefault();
+      // 声明变量,获取账号内容与密码内容,并且对其清空前后空格
+      var userName = $('.input_txt').val().trim();
+      var passWord = $('.input_pass').val().trim();
+      // 判断账号与密码是否为空
+      if (userName == '' || passWord == '') {
+        // alert('用户名与密码不能为空!');
+        // 模态框弹出提示
+        $('#myModal').modal();
+        $('.modal-content .modal-body').text('用户名与密码不能为空!');
+        return;
+      }
+      // 发送ajax请求
+      $.ajax({
+        type: 'post',
+        // 接口地址从Window的BigNew对象中获取
+        url: window.BigNew.user_login,
+        data: {
+          username: userName,
+          password: passWord
+        },
+        // 回调函数
+        success: function (backData) {
+          // console.log(backData);
+          // 判断结果
+          // 无论结果如何,都会弹出窗口提示登录是否通过
+          // alert(backData.msg);
+          // 使用bootstrap的模态框弹出提示信息
+          $('#myModal').modal();
+          $('.modal-content .modal-body').text(backData.msg);
+          if (backData.code == 200) {
+            // 将token储存在本地浏览器
+            console.log(backData);
+            window.localStorage.setItem('token',backData.token);
+            // 弹窗提示登录成功
+            // alert(backData.msg);
+            // 并且跳转到后台首页
+            // 在模态框隐藏后,才触发此事件,将页面跳转到后台首页
+            $('#myModal').on('hidden.bs.modal', function (e) {
+              window.location.href = './index.html';
+            })
+          } else {
+            // console.log(backData);
+            // alert(backData.msg);
+            // 清空用户名与密码输入框
+            $('.input_txt').val('');
+            $('.input_pass').val('');
+          }
+        }
+      })
+    })
+
+  </script>
+
 </body>
 
 </html>
